@@ -1,18 +1,18 @@
 package main
 
 import (
-	"advent/day1"
+	"advent/day2"
 	"advent/utils"
 	"os"
 )
 
 func main() {
 	// Open input file
-	input, err := os.ReadFile("day1/1a.txt")
+	input, err := os.ReadFile("day2/2a.txt")
 	if err != nil {
 		panic(err)
 	}
 
-	result := day1.Part1B(string(input))
+	result := day2.Part1B(string(input))
 	utils.Debug(result)
 }
