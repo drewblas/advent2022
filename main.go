@@ -1,18 +1,26 @@
 package main
 
 import (
-	"advent/day4"
+	. "advent/day5" // Pick a day
 	"advent/utils"
+	"fmt"
 	"os"
 )
 
 func main() {
-	// Open input file
-	input, err := os.ReadFile("day4/4a.txt")
-	if err != nil {
-		panic(err)
-	}
+	day := "day5"
 
-	result := day4.Part1B(string(input))
-	utils.Debug(result)
+	run("Test Part A:", day+"/test.txt", PartA)
+	run("Full Part A:", day+"/input.txt", PartA)
+	run("Test Part B:", day+"/test.txt", PartB)
+	run("Full Part B:", day+"/input.txt", PartB)
+}
+
+func run(title, filename string, f func(string) string) {
+	input, err := os.ReadFile(filename)
+	if err == nil {
+		fmt.Println(title)
+		result := f(string(input))
+		utils.Debug(result)
+	}
 }

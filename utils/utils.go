@@ -3,6 +3,10 @@ package utils
 import (
 	"fmt"
 	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/samber/lo"
 )
 
 func Debug(v interface{}) {
@@ -45,4 +49,28 @@ func MinMaxIndex(array []int) (int, int) {
 		}
 	}
 	return minI, maxI
+}
+
+// MatchLinesToMap takes an input of lines
+// and a regex with named capture groups
+// and returns a map[string]int for each line
+func MatchLinesToMap(input string, re *regexp.Regexp) []map[string]int {
+	lines := strings.Split(input, "\n")
+	// Remove any blank lines
+	lines = lo.Reject(lines, func(line string, _ int) bool {
+		return strings.TrimSpace(line) == ""
+	})
+
+	matches := lo.Map(lines, func(line string, _ int) map[string]int {
+		result := make(map[string]int)
+		match := re.FindStringSubmatch(line)
+
+		for i, name := range re.SubexpNames()[1:] {
+			result[name] = lo.Must(strconv.Atoi(match[i+1]))
+		}
+
+		return result
+	})
+
+	return matches
 }
