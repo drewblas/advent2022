@@ -74,3 +74,32 @@ func MatchLinesToMap(input string, re *regexp.Regexp) []map[string]int {
 
 	return matches
 }
+
+func MatchLineToMap(line string, re *regexp.Regexp) (map[string]string, error) {
+	match := re.FindStringSubmatch(line)
+
+	if match == nil {
+		return nil, fmt.Errorf("no match")
+	}
+
+	result := make(map[string]string)
+
+	for i, name := range re.SubexpNames()[1:] {
+		result[name] = match[i+1]
+	}
+
+	return result, nil
+}
+
+func SplitLines(input string) []string {
+	lines := strings.Split(input, "\n")
+	lines = lines[:len(lines)-1] // Remove blank last line
+	return lines
+}
+
+func SplitAndConvertToInts(input, sep string) []int {
+	nums := strings.Split(input, sep)
+	return lo.Map(nums, func(line string, _ int) int {
+		return lo.Must(strconv.Atoi(line))
+	})
+}
