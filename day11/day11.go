@@ -26,48 +26,87 @@ type Toss struct {
 	To   int
 }
 
+type MonkeyGame struct {
+	monkeys        []Monkey
+	rounds         int
+	worryDivisor   int
+	worryModulator int
+}
+
 func PartA(input string) string {
-	monkeys := parseInput(input)
-	fmt.Println(monkeys)
+	m := MonkeyGame{
+		monkeys:        parseInput(input),
+		rounds:         20,
+		worryDivisor:   3,
+		worryModulator: 1,
+	}
 
-	rounds := 20
+	return m.Run()
+}
 
-	for i := 0; i < rounds; i++ {
-		fmt.Println("Round: ", i+1)
+func PartB(input string) string {
+	m := MonkeyGame{
+		monkeys:      parseInput(input),
+		rounds:       10000,
+		worryDivisor: 1,
+	}
 
-		for j := 0; j < len(monkeys); j++ {
-			tosses := monkeys[j].Turn()
+	m.worryModulator = m.CalcAllDivisors()
+	fmt.Println("Worry Modulator: ", m.worryModulator)
+
+	return m.Run()
+}
+
+func (game *MonkeyGame) CalcAllDivisors() int {
+	allDivisors := 1
+	for _, monkey := range game.monkeys {
+		allDivisors = allDivisors * monkey.divisibleBy
+	}
+
+	return allDivisors
+}
+
+func (game *MonkeyGame) Run() string {
+	// fmt.Println(game.monkeys)
+
+	for i := 0; i < game.rounds; i++ {
+
+		for j := 0; j < len(game.monkeys); j++ {
+			tosses := game.monkeys[j].Turn(game.worryDivisor, game.worryModulator)
 			lo.ForEach(tosses, func(t Toss, i int) {
-				monkeys[t.To].Catch(t.Item)
+				game.monkeys[t.To].Catch(t.Item)
 			})
 		}
 
-		fmt.Println(monkeys)
+		// fmt.Println(game.monkeys)
+		if (i+1)%1000 == 0 {
+			fmt.Println("Round: ", i+1)
+			utils.Debug(game.Inspections())
+			// fmt.Println(game.monkeys)
+		}
 	}
 
-	inspections := lo.Map(monkeys, func(m Monkey, i int) int {
-		return m.inspectionCount
-	})
+	inspections := game.Inspections()
 	sort.Ints(inspections)
 
-	utils.Debug(inspections)
+	// utils.Debug(inspections)
 
 	monkeyBusiness := inspections[len(inspections)-1] * inspections[len(inspections)-2]
 
 	return fmt.Sprintf("Monkey Business: %d", monkeyBusiness)
 }
 
-func PartB(input string) string {
-	lines := utils.SplitLines(input)
-
-	return fmt.Sprintln("Unimplemented. Lines: ", len(lines))
+func (game *MonkeyGame) Inspections() []int {
+	return lo.Map(game.monkeys, func(m Monkey, i int) int {
+		return m.inspectionCount
+	})
 }
 
 func (m *Monkey) Catch(item int) {
 	m.items = append(m.items, item)
 }
 
-func (m *Monkey) Turn() []Toss {
+func (m *Monkey) Turn(worryDivisor, worryModulator int) []Toss {
 	tosses := []Toss{}
 
 	for _, item := range m.items {
@@ -82,8 +121,12 @@ func (m *Monkey) Turn() []Toss {
 			item = item * item
 		}
 
-		//Relief
-		item = item / 3
+		//Part 1 Relief
+		if worryDivisor > 1 {
+			item = item / worryDivisor
+		} else {
+			item = item % worryModulator
+		}
 
 		// Test
 		if item%m.divisibleBy == 0 {
@@ -93,7 +136,7 @@ func (m *Monkey) Turn() []Toss {
 		}
 	}
 
-	m.items = []int{}
+	m.items = m.items[:0]
 
 	return tosses
 }
