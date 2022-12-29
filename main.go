@@ -2,14 +2,14 @@ package main
 
 import (
 	// Pick a day
-	anyday "advent/day11"
+	anyday "advent/day12"
 	"advent/utils"
 	"fmt"
 	"os"
 )
 
 func main() {
-	day := "day11"
+	day := "day12"
 
 	run("Test Part A:", day+"/test.txt", anyday.PartA)
 	run("Full Part A:", day+"/input.txt", anyday.PartA)

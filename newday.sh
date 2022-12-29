@@ -1,4 +1,4 @@
-#!/usr/bin
+#!/bin/bash
 
 # Error if no argument is given
 if [ $# -eq 0 ]; then
